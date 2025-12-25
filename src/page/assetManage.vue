@@ -37,7 +37,8 @@
                       </template>
                  </el-table-column>
         </el-table>
-       </el-row>
+       </el-row><br/>
+       <div id="assetChart" style="width: 80%;height:350px;"></div>
     </div>
     <el-dialog
       title="公司名称-股票代码"
@@ -91,12 +92,14 @@
 </template>
 <script>
  import headTop from '../components/headTop'
+ import * as echarts from 'echarts'
   export default {
     components: {
     		headTop,
     	},
     mounted() {
-      
+      this.myChart = echarts.init(document.getElementById('assetChart'));
+      this.initChart();
     },
     data() {
       return {
@@ -107,6 +110,7 @@
         },
         resultList:[{name:'潍柴动力',monetaryFunds:'627.21'}],
         dialogVisible: false,
+        myChart:null,
       }
     },
      methods: {
@@ -122,6 +126,50 @@
       handleClose(done) {
         done();
         console.log('关闭对话框');
+      },
+      //初始化图表
+      initChart(){
+        let option = {
+          title: {
+            text: '资产数据统计图-潍柴动力'
+          },
+          tooltip: {},
+          legend: {
+            data:['潍柴动力']
+          },
+          xAxis: {
+            data: ["货币资金","交易性金融资产","应收票据/应收账款","预付款","其他应收款合计","存货","待售资产","一年期非流动资产"]
+          },
+          yAxis: {},
+          axisLabel: {
+  width: 60,
+  overflow: 'break',
+    formatter: function(value) {
+    return value.length > 5 ? value.substring(0, 5) + '...' : value;
+  }
+},
+          dataZoom: [{
+  type: 'slider',
+  xAxisIndex: 0,
+  start: 0,
+  height: 10, // 滚动条整体高度（默认约14px）
+  handleSize: 8, // 滑块粗细需小于等于height
+  end: 80 // 初始显示前50%数据
+}],
+          series: [{
+            name: '数额',
+            type: 'bar',
+            data:[{value:193}, 
+              {value:256, itemStyle: { color: '#e76e0aff' }}, 
+              {value:299.58, itemStyle: { color: '#e7d50aff' }}, 
+              {value:33.58, itemStyle: { color: '#0ae70aff' }}, 
+              {value:40.72, itemStyle: { color: '#0ae0e7ff' }}, 
+              {value:26.35, itemStyle: { color: '#c23531' }}, 
+              {value:0, itemStyle: { color: '#e7a10aff' }}, 
+                ]
+          }]
+        };
+        this.myChart.setOption(option);
       }
     }
   }

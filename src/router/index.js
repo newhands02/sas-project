@@ -6,8 +6,6 @@ Vue.use(Router)
 const login = r => require.ensure([], () => r(require('@/page/login')), 'login');
 const manage = r => require.ensure([], () => r(require('@/page/manage')), 'manage');
 const home = r => require.ensure([], () => r(require('@/page/home')), 'home');
-const visitor = r => require.ensure([], () => r(require('@/page/visitor')), 'visitor');
-const newMember = r => require.ensure([], () => r(require('@/page/newMember')), 'newMember');
 const result = r => require.ensure([], () => r(require('@/page/result')), 'result');
 const assetManage = r => require.ensure([], () => r(require('@/page/assetManage')), 'assetManage');
 const liabilityManage = r => require.ensure([], () => r(require('@/page/liabilityManage')), 'liabilityManage');
@@ -42,14 +40,6 @@ const routes = [
 			path: '/profitManage',
 			component: profitManage,
 			meta: ['数据管理', '利润数据管理'],
-		},  {
-			path: '/visitor',
-			component: visitor,
-			meta: ['图表', '用户分布'],
-		}, {
-			path: '/newMember',
-			component: newMember,
-			meta: ['图表', '用户数据'],
 		}]
 	}
 ]

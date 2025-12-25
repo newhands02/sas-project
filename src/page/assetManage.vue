@@ -14,9 +14,6 @@
           <el-form-item>
             <el-button type="primary" @click="queryResult">查询</el-button>
           </el-form-item>
-          <el-form-item>
-            <el-button >添加</el-button>
-          </el-form-item>
         </el-form>
         <el-table
                 :data="resultList" 

@@ -9,18 +9,14 @@
 					<el-menu-item index="manage"><i class="el-icon-menu"></i>首页</el-menu-item>
 					<el-submenu index="2">
 						<template slot="title"><i class="el-icon-document"></i>数据管理</template>
-						<el-menu-item index="assetManage">资产数据管理</el-menu-item>
-						<el-menu-item index="liabilityManage">负债数据管理</el-menu-item>
-						<el-menu-item index="profitManage">利润数据管理</el-menu-item>
-					</el-submenu>
-					<el-submenu index="5">
-						<template slot="title"><i class="el-icon-edit"></i>编辑</template>
-						<!-- <el-menu-item index="uploadImg">上传图片</el-menu-item> -->
-						<el-menu-item index="vueEdit">文本编辑</el-menu-item>
+						<el-menu-item index="dataManage">添加数据</el-menu-item>
 					</el-submenu>
 					<el-submenu index="8">
 						<template slot="title"><i class="el-icon-search"></i>数据查询</template>
 						<el-menu-item index="resultManage">结果表</el-menu-item>
+						<el-menu-item index="assetManage">资产数据查询</el-menu-item>
+						<el-menu-item index="liabilityManage">负债数据查询</el-menu-item>
+						<el-menu-item index="profitManage">利润数据查询</el-menu-item>
 					</el-submenu>
 				</el-menu>
 			</el-col>

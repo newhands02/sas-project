@@ -9,7 +9,8 @@ const home = r => require.ensure([], () => r(require('@/page/home')), 'home');
 const result = r => require.ensure([], () => r(require('@/page/result')), 'result');
 const assetManage = r => require.ensure([], () => r(require('@/page/assetManage')), 'assetManage');
 const liabilityManage = r => require.ensure([], () => r(require('@/page/liabilityManage')), 'liabilityManage');
-const profitManage = r => require.ensure([], () => r(require('@/page/profitManage')), 'profitManage	');
+const profitManage = r => require.ensure([], () => r(require('@/page/profitManage')), 'profitManage');
+const dataManage = r => require.ensure([], () => r(require('@/page/dataManage')), 'dataManage');
 
 const routes = [
 	{
@@ -31,15 +32,19 @@ const routes = [
 		}, {
 			path: '/assetManage',
 			component: assetManage,
-			meta: ['数据管理', '资产数据管理'],
+			meta: ['数据查询', '资产数据查询'],
 		}, {
 			path: '/liabilityManage',
 			component: liabilityManage,
-			meta: ['数据管理', '负债数据管理'],
+			meta: ['数据查询', '负债数据查询'],
 		},  {
 			path: '/profitManage',
 			component: profitManage,
-			meta: ['数据管理', '利润数据管理'],
+			meta: ['数据查询', '利润数据查询'],
+		},  {
+			path: '/dataManage',
+			component: dataManage,
+			meta: ['数据管理', '添加数据'],
 		}]
 	}
 ]

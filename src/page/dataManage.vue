@@ -46,7 +46,7 @@
       width="60%"
       :before-close="handleClose">
     <div style="overflow-y: scroll;height: 600px;">
- <el-form ref="assetform" :model="assetForm" label-width="120px">
+ <el-form ref="assetform" :model="assetForm" label-width="150px">
       <el-row>
         <el-col :span="12">
           <el-form-item label="货币资金">

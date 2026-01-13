@@ -5,15 +5,21 @@
     <div class="table_container">
        <el-row style="margin-top: 20px;">
         <el-form :inline="true" :model="queryForm" class="demo-form-inline">
-          <el-form-item label="股票代码">
-            <el-input v-model="queryForm.code" placeholder="股票代码"></el-input>
-          </el-form-item>
           <el-form-item label="公司名称">
-            <el-input v-model="queryForm.name" placeholder="公司名称"></el-input>
+            <el-input v-model="queryForm.name" placeholder="公司名称" clearable></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="queryResult">查询</el-button>
           </el-form-item>
+           <el-form-item>
+            <el-button @click="openAddCompanyDialog">添加</el-button>
+          </el-form-item>
+          <el-form-item>
+             <el-button type="primary" plain>更新所有价格</el-button>
+          </el-form-item>
+            <el-form-item>
+              <el-button type="success" plain @click="clcikUpdateAllReport" :loading="updateLoad">更新全部报表</el-button>
+            </el-form-item>
         </el-form>
         <el-table
                 :data="resultList" 
@@ -23,11 +29,11 @@
                   <el-table-column prop="code"  label="股票代码" />
                   <el-table-column prop="place"  label="交易所" />
                   <el-table-column prop="updateTime"  label="更新时间" />
-                  <el-table-column fixed="right" label="操作" width="100">
+                  <el-table-column fixed="right" label="操作">
                       <template slot-scope="scope">
-                         <el-dropdown @command="handleCommand">
+                          <el-dropdown @command="handleCommand">
                           <span class="el-dropdown-link">
-                            添加<i class="el-icon-arrow-down el-icon--right"></i>
+                            跳转<i class="el-icon-arrow-down el-icon--right"></i>
                           </span>
                           <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="asset">资产数据</el-dropdown-item>
@@ -35,155 +41,34 @@
                             <el-dropdown-item command="profit">利润数据</el-dropdown-item>
                           </el-dropdown-menu>
                         </el-dropdown>
+                        <el-button type="text" style="color:red">删除</el-button>
                       </template>
                  </el-table-column>
         </el-table>
        </el-row><br/>
     </div>
     <el-dialog
-      title="公司名称-股票代码"
+      title="添加公司"
       :visible.sync="dialogVisible"
       width="60%"
       :before-close="handleClose">
-    <div style="overflow-y: scroll;height: 600px;">
- <el-form ref="assetform" :model="assetForm" label-width="150px">
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="货币资金">
-            <el-input v-model="assetForm.monetaryFunds" placeholder="货币资金"></el-input>
+        <el-form ref='companyForm' :rules="companyRules" :model="companyForm" label-width="80px">
+          <el-form-item label="公司名称" prop="name">
+            <el-input v-model="companyForm.name"></el-input>
           </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="交易性金融资产">
-            <el-input v-model="assetForm.tradingFinancialAssets" placeholder="交易性金融资产"></el-input>
+          <el-form-item label="股票代码" prop="code">
+            <el-input v-model="companyForm.code"></el-input>
           </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="应收票据/应收账款">
-            <el-input v-model="assetForm.notesReceivable" placeholder="应收票据/应收账款"></el-input>
+          <el-form-item label="交易所" prop="place">
+             <el-select v-model="companyForm.place" placeholder="请选择交易所">
+              <el-option label="sz" value="sz"></el-option>
+              <el-option label="sh" value="sh"></el-option>
+            </el-select>
           </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="预付款项">
-            <el-input v-model="assetForm.prepayments" placeholder="预付款项"></el-input>
-          </el-form-item>
-        </el-col>
-        </el-row>
-        <el-row>
-        <el-col :span="12">
-          <el-form-item label="其他应收款合计">
-            <el-input v-model="assetForm.otherReceivables" placeholder="其他应收款合计"></el-input>
-          </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="存货">
-              <el-input v-model="assetForm.inventory" placeholder="存货"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="一年期非流动资产">
-              <el-input v-model="assetForm.oneYearNonCurrentAssets" placeholder="一年期非流动资产"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="其他流动资产">
-                <el-input v-model="assetForm.otherCurrentAssets" placeholder="其他流动资产"></el-input>
-              </el-form-item>
-              </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="可供出售金融资产">
-            <el-input v-model="assetForm.availableForSaleFinancialAssets" placeholder="可供出售金融资产"></el-input>
-          </el-form-item>
-          </el-col>
-           <el-col :span="12">
-              <el-form-item label="输出-资产调减">
-                <el-input v-model="assetForm.outputAssetReduction" placeholder="产成资产减值准备"></el-input>
-              </el-form-item>
-              </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="持有至到期投资">
-              <el-input v-model="assetForm.heldToMaturityInvestments" placeholder="持有至到期投资"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="长期股权投资">
-              <el-input v-model="assetForm.longTermEquityInvestments" placeholder="长期股权投资"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="其他权益工具投资">
-              <el-input v-model="assetForm.otherEquityInstrumentsInvestments" placeholder="其他权益工具投资"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="其他非流动金融资产">
-              <el-input v-model="assetForm.otherNonCurrentFinancialAssets" placeholder="其他非流动金融资产"></el-input>
-            </el-form-item>
-          </el-col>
-          </el-row>
-          <el-row>
-          <el-col :span="12">
-            <el-form-item label="投资性房地产">
-              <el-input v-model="assetForm.investmentRealEstate" placeholder="投资性房地产"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="固定资产">
-              <el-input v-model="assetForm.fixedAssets" placeholder="固定资产"></el-input>
-            </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-          <el-col :span="12">
-            <el-form-item label="在建工程">
-              <el-input v-model="assetForm.constructionInProgress" placeholder="在建工程"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="无形资产">
-                <el-input v-model="assetForm.intangibleAssets" placeholder="无形资产"></el-input>
-              </el-form-item>
-              </el-col>
-          </el-row>
-          <el-row>
-          <el-col :span="12">
-            <el-form-item label="商誉">
-              <el-input v-model="assetForm.goodwill" placeholder="商誉"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="长期待摊费用">
-                <el-input v-model="assetForm.longTermDeferredExpenses" placeholder="长期待摊费用"></el-input>
-              </el-form-item>
-              </el-col>
-          </el-row>
-          <el-row>
-          <el-col :span="12">
-            <el-form-item label="其他非流动资产">
-              <el-input v-model="assetForm.otherNonCurrentAssets" placeholder="其他非流动资产"></el-input>
-            </el-form-item>
-            </el-col>
-           
-          </el-row>
-     </el-form>
-    </div>
-    
-
-
-
+        </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button @click="cancelSubmit">取 消</el-button>
+        <el-button type="primary" @click="submitCompany">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -191,68 +76,125 @@
 </template>
 <script>
 import headTop from '../components/headTop'
+import { fetchCompanyList,addCompany } from '../api/company';
+import { updateAllReports } from '../api/stock';
   export default {
     components: {
     		headTop,
     	},
     mounted() {
-     
+     this.queryResult();
     },
     data() {
       return {
         queryForm: {
-          code: '',
-          name: '',
-          dateTime:''
+          name: ''
         },
-        resultList:[{name:'潍柴动力',code:'000338',place:'深交所',updateTime:'2024-06-01'},
-        {name:'中国平安',code:'601318',place:'上交所',updateTime:'2024-06-01'}],
+        companyForm: {
+          name: '',
+          code: '',
+          place: ''
+        },
+        resultList:[],
         dialogVisible: false,
         myChart:null,
-        assetForm:{
-          monetaryFunds:'',
-          tradingFinancialAssets:'',
-          notesReceivable:'',
-          accountsReceivable:'',
-          prepayments:'',
-          otherReceivables:'',
-          inventory:'',
-          oneYearNonCurrentAssets:'',
-          otherCurrentAssets:'',
-          availableForSaleFinancialAssets:'',
-          heldToMaturityInvestments:'',
-          longTermEquityInvestments:'',
-          otherEquityInstrumentsInvestments:'',
-          otherNonCurrentFinancialAssets:'',
-          investmentRealEstate:'',
-          fixedAssets:'',
-          constructionInProgress:'',
-          intangibleAssets:'',
-          goodwill:'',
-          longTermDeferredExpenses:'',
-          otherNonCurrentAssets:'',
-          outputAssetReduction:''
+        updateLoad:false,
+        companyRules: {
+          name: [
+            { required: true, message: '请输入公司名称', trigger: 'blur' }
+          ],
+          code: [
+            { required: true, message: '请输入股票代码', trigger: 'blur' }
+          ],
+          place: [
+            { required: true, message: '请选择交易所', trigger: 'change' }
+          ]
         }
       }
     },
      methods: {
       //点击查询
       queryResult() {
-        console.log('submit!');
+        fetchCompanyList(this.queryForm).then(response => {
+          if(response.data.code=="0"){
+            this.resultList = response.data.data;
+          }else{
+            this.$message.error('查询公司列表失败:' + response.data.message);
+          }
+          
+        }).catch(error => {
+          this.$message.error('查询公司列表异常:', error);
+        });
+      },
+      //打开添加公司对话框
+      openAddCompanyDialog() {
+        this.dialogVisible = true;
+      },
+      //提交添加公司
+      submitCompany() {
+        this.$refs['companyForm'].validate((valid) => {
+          if (valid) {
+             addCompany(this.companyForm).then(response => {
+                if(response.data.code=="0"){
+                  this.$message.success('添加公司成功');
+                  this.dialogVisible = false;
+                  this.dialogVisible = false
+                  this.queryResult();
+                }else{
+                  this.$message.error('添加公司失败:' + response.data.message);
+                }
+              }).catch(error => {
+                this.$message.error('添加公司异常:', error);
+              });
+          } else {
+            this.$message.error('请填写完整的公司信息');
+            return false;
+          }
+        });
+       
+      },
+      clickUpdateAllPrice(){
+        console.log('更新所有价格');
+      },
+      clcikUpdateAllReport(){
+        this.updateLoad = true;
+        updateAllReports().then(response => {
+          if(response.data.code=="0"){
+            this.$message.success('更新全部报表成功');
+          }else{
+            this.$message.error('更新全部报表失败:' + response.data.message);
+          }
+        }).catch(error => {
+          this.$message.error('更新全部报表异常:', error);
+        }).finally(()=>{
+          this.updateLoad = false;
+        });
+      },
+      cancelSubmit() {
+        this.companyForm = {
+          name: '',
+          code: '',
+          place: ''
+        };
+        this.dialogVisible = false;
       },
       handleClose(done) {
         done();
+        this.companyForm = {
+          name: '',
+          code: '',
+          place: ''
+        };
         console.log('关闭对话框');
       },
       handleCommand(command) {
         if (command === 'asset') {
-          console.log('添加资产数据');
+          this.$router.replace('/assetManage');
         } else if (command === 'liability') {
-          console.log('添加负债数据');
+          this.$router.replace('/liabilityManage');
         } else if (command === 'profit') {
-          console.log('添加利润数据');
+          this.$router.replace('/profitManage');
         }
-        this.dialogVisible = true;
     }
   }
   }

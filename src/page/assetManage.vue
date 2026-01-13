@@ -5,11 +5,8 @@
     <div class="table_container">
        <el-row style="margin-top: 20px;">
         <el-form :inline="true" :model="queryForm" class="demo-form-inline">
-          <el-form-item label="股票代码">
-            <el-input v-model="queryForm.code" placeholder="股票代码"></el-input>
-          </el-form-item>
           <el-form-item label="公司名称">
-            <el-input v-model="queryForm.name" placeholder="公司名称"></el-input>
+            <el-input v-model="queryForm.name" placeholder="公司名称" clearable></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="queryResult">查询</el-button>
@@ -18,11 +15,12 @@
         <el-table
                 :data="resultList" 
                 border
+                @row-dblclick="handleRowDbClick"
                 style="width: 100%">
                   <el-table-column prop="name"  label="名称" />
                   <el-table-column prop="monetaryFunds"  label="货币资金" />
                   <el-table-column prop="tradingFinancialAssets"  label="交易性金融资产" />
-                  <el-table-column prop="notesReceivable"  label="应收票据/应收账款" />
+                  <el-table-column prop="accountsNotesReceivable"  label="应收票据/应收账款" />
                   <el-table-column prop="prepayments"  label="预付款项" />
                   <el-table-column prop="totalOtherReceivables"  label="其他应收款合计" />
                   <el-table-column prop="inventory"  label="存货" />
@@ -35,48 +33,48 @@
                  </el-table-column>
         </el-table>
        </el-row><br/>
-       <div id="assetChart" style="width: 80%;height:350px;"></div>
+       <div id="assetChart" style="height:350px;"></div>
     </div>
     <el-dialog
-      title="公司名称-股票代码"
+      :title="currentData.name + '-' + currentData.reportTime"
       :visible.sync="dialogVisible"
       width="60%"
       :before-close="handleClose">
      <!-- 走马灯显示4张表 -->
         <el-row>
-          <el-col :span="8">货币资金：</el-col>
-          <el-col :span="8">交易性金融资产：</el-col>
-          <el-col :span="8">应收票据/应收账款：</el-col>
+          <el-col :span="8">货币资金：{{ currentData.monetaryFunds }}</el-col>
+          <el-col :span="8">交易性金融资产：{{ currentData.tradingFinancialAssets }}</el-col>
+          <el-col :span="8">应收票据/应收账款：{{ currentData.accountsNotesReceivable }}</el-col>
         </el-row>
          <el-row>
-          <el-col :span="8">预付款项：</el-col>
-          <el-col :span="8">其他应收款合计：</el-col>
-          <el-col :span="8">存货：</el-col>
+          <el-col :span="8">预付款项：{{ currentData.prepayments }}</el-col>
+          <el-col :span="8">其他应收款合计：{{ currentData.totalOtherReceivables }}</el-col>
+          <el-col :span="8">存货：{{ currentData.inventory }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="8">一年期非流动资产：</el-col>
-          <el-col :span="8">其他流动资产：</el-col>
-          <el-col :span="8">可供出售金融资产：</el-col>
+          <el-col :span="8">一年期非流动资产：{{ currentData.oneYearNonCurrentAssets }}</el-col>
+          <el-col :span="8">其他流动资产：{{ currentData.otherCurrentAssets }}</el-col>
+          <el-col :span="8">可供出售金融资产：{{ currentData.availableForSaleFinancialAssets }}</el-col>
         </el-row>
          <el-row>
-          <el-col :span="8">持有至到期投资：</el-col>
-          <el-col :span="8">长期股权投资：</el-col>
-          <el-col :span="8">其他权益工具投资：</el-col>
+          <el-col :span="8">持有至到期投资：{{ currentData.heldToMaturityInvestment }}</el-col>
+          <el-col :span="8">长期股权投资：{{ currentData.longTermEquityInvestment }}</el-col>
+          <el-col :span="8">其他权益工具投资：{{ currentData.otherEquityInstrumentInvestments }}</el-col>
         </el-row>
          <el-row>
-          <el-col :span="8">其他非流动金融资产：</el-col>
-          <el-col :span="8">投资性房地产：</el-col>
-          <el-col :span="8">固定资产：</el-col>
+          <el-col :span="8">其他非流动金融资产：{{ currentData.otherNonCurrentFinancialAssets }}</el-col>
+          <el-col :span="8">投资性房地产：{{ currentData.investmentOrientedRealEstate }}</el-col>
+          <el-col :span="8">固定资产：{{ currentData.fixedAssets }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="8">在建工程：</el-col>
-          <el-col :span="8">无形资产：</el-col>
-          <el-col :span="8">商誉：</el-col>
+          <el-col :span="8">在建工程：{{ currentData.constructionInProgress }}</el-col>
+          <el-col :span="8">无形资产：{{ currentData.intangibleAssets }}</el-col>
+          <el-col :span="8">商誉：{{ currentData.goodwill }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="8">长期待摊费用：</el-col>
-          <el-col :span="8">其他非流动资产：</el-col>
-          <el-col :span="8">输出-资产调减：</el-col>
+          <el-col :span="8">长期待摊费用：{{ currentData.longTermDeferredExpenses }}</el-col>
+          <el-col :span="8">其他非流动资产：{{ currentData.otherNonCurrentAssets }}</el-col>
+          <el-col :span="8">输出-资产调减：{{ currentData.outputAssetReduction }}</el-col>
         </el-row>
 
       <span slot="footer" class="dialog-footer">
@@ -90,6 +88,8 @@
 <script>
  import headTop from '../components/headTop'
  import * as echarts from 'echarts'
+ import { getAssetsList } from '../api/getData';
+ import { assaetX,updateEchartData,getChartOption,getUpdateOption } from '../config/echartConst';
   export default {
     components: {
     		headTop,
@@ -97,6 +97,7 @@
     mounted() {
       this.myChart = echarts.init(document.getElementById('assetChart'));
       this.initChart();
+      this.queryResult();
     },
     data() {
       return {
@@ -105,67 +106,58 @@
           name: '',
           dateTime:''
         },
-        resultList:[{name:'潍柴动力',monetaryFunds:'627.21'}],
+        resultList:[],
         dialogVisible: false,
         myChart:null,
+        currentData:{},
       }
     },
      methods: {
+      handleRowDbClick(row, column, event){
+       console.log('双击行',row);
+       this.currentData = row;
+       this.updateEchartData(row);
+      },
+      updateEchartData(originList){
+        if(this.myChart){
+          let sdata = updateEchartData(originList);
+          let option = getUpdateOption(originList,sdata,assaetX);
+          this.myChart.setOption(option);
+        }
+
+      },
       //点击查询
       queryResult() {
-        console.log('submit!');
+        getAssetsList(this.queryForm).then(response => {
+          if(response.data.code=="0"){
+            this.resultList = response.data.data;
+            if(this.resultList.length>0){
+              this.currentData = this.resultList[0];
+              this.updateEchartData(this.resultList[0]);
+            }
+          }else{
+            this.$message.error('查询资产列表失败:' + response.data.message);
+          }
+          
+        }).catch(error => {
+          this.$message.error('查询资产列表异常:', error);
+          console.log('查询资产列表异常:', error);
+        });
       },
       //点击详情
       handleClick(data){
         this.dialogVisible = true;
-
+        this.currentData = data;
+        this.updateEchartData(data);
       },
       handleClose(done) {
         done();
+        this.currentData={};
         console.log('关闭对话框');
       },
       //初始化图表
       initChart(){
-        let option = {
-          title: {
-            text: '资产数据统计图-潍柴动力'
-          },
-          tooltip: {},
-          legend: {
-            data:['潍柴动力']
-          },
-          xAxis: {
-            data: ["货币资金","交易性金融资产","应收票据/应收账款","预付款","其他应收款合计","存货","待售资产","一年期非流动资产"]
-          },
-          yAxis: {},
-          axisLabel: {
-  width: 60,
-  overflow: 'break',
-    formatter: function(value) {
-    return value.length > 5 ? value.substring(0, 5) + '...' : value;
-  }
-},
-          dataZoom: [{
-  type: 'slider',
-  xAxisIndex: 0,
-  start: 0,
-  height: 10, // 滚动条整体高度（默认约14px）
-  handleSize: 8, // 滑块粗细需小于等于height
-  end: 80 // 初始显示前50%数据
-}],
-          series: [{
-            name: '数额',
-            type: 'bar',
-            data:[{value:193}, 
-              {value:256, itemStyle: { color: '#e76e0aff' }}, 
-              {value:299.58, itemStyle: { color: '#e7d50aff' }}, 
-              {value:33.58, itemStyle: { color: '#0ae70aff' }}, 
-              {value:40.72, itemStyle: { color: '#0ae0e7ff' }}, 
-              {value:26.35, itemStyle: { color: '#c23531' }}, 
-              {value:0, itemStyle: { color: '#e7a10aff' }}, 
-                ]
-          }]
-        };
+        let option = getChartOption('');
         this.myChart.setOption(option);
       }
     }

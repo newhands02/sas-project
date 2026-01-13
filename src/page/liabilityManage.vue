@@ -5,11 +5,8 @@
     <div class="table_container">
        <el-row style="margin-top: 20px;">
         <el-form :inline="true" :model="queryForm" class="demo-form-inline">
-          <el-form-item label="股票代码">
-            <el-input v-model="queryForm.code" placeholder="股票代码"></el-input>
-          </el-form-item>
           <el-form-item label="公司名称">
-            <el-input v-model="queryForm.name" placeholder="公司名称"></el-input>
+            <el-input v-model="queryForm.name" placeholder="公司名称" clearable></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="queryResult">查询</el-button>
@@ -18,10 +15,11 @@
         <el-table
                 :data="resultList" 
                 border
+                @row-dblclick="handleRowDbClick"
                 style="width: 100%">
                   <el-table-column prop="name"  label="名称" />
                   <el-table-column prop="shortTermBorrowing"  label="短期借款" />
-                  <el-table-column prop="profitLossLiabilities"  label="计入当期损益的金融负债" />
+                  <el-table-column prop="financialLiabilitiesIncluded"  label="计入当期损益的金融负债" />
                   <el-table-column prop="accountsPayable"  label="应付账款" />
                   <el-table-column prop="advanceFromCustomers"  label="预收账款" />
                   <el-table-column prop="contractLiability"  label="合同负债" />
@@ -34,43 +32,43 @@
                       </template>
                  </el-table-column>
         </el-table>
-       </el-row>
+       </el-row><br/>
+       <div id="laoeChart" style="height:350px;"></div>
     </div>
     <el-dialog
-      title="公司名称-股票代码"
+      :title="currentData.name + '-' + currentData.reportTime"
       :visible.sync="dialogVisible"
       width="60%"
       :before-close="handleClose">
-     <!-- 走马灯显示4张表 -->
         <el-row>
-          <el-col :span="8">短期借款：</el-col>
-          <el-col :span="8">计入当期损益的金融负债：</el-col>
-          <el-col :span="8">应付账款：</el-col>
+          <el-col :span="8">短期借款：{{ currentData.shortTermBorrowing }}</el-col>
+          <el-col :span="8">计入当期损益的金融负债：{{ currentData.financialLiabilitiesIncluded }}</el-col>
+          <el-col :span="8">应付账款：{{ currentData.accountsPayable }}</el-col>
         </el-row>
          <el-row>
-          <el-col :span="8">预收账款：</el-col>
-          <el-col :span="8">合同负债：</el-col>
-          <el-col :span="8">其他应付款：</el-col>
+          <el-col :span="8">预收账款：{{ currentData.advanceFromCustomers }}</el-col>
+          <el-col :span="8">合同负债：{{ currentData.contractLiability }}</el-col>
+          <el-col :span="8">其他应付款：{{ currentData.otherPayables }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="8">一年期非流动负债：</el-col>
-          <el-col :span="8">其他流动负债：</el-col>
-          <el-col :span="8">长期借款：</el-col>
+          <el-col :span="8">一年期非流动负债：{{ currentData.oneYearNonCurrentLiabilities }}</el-col>
+          <el-col :span="8">其他流动负债：{{ currentData.otherCurrentLiabilities }}</el-col>
+          <el-col :span="8">长期借款：{{ currentData.longTermLoans }}</el-col>
         </el-row>
          <el-row>
-          <el-col :span="8">应付债券：</el-col>
-          <el-col :span="8">长期应付款：</el-col>
-          <el-col :span="8">预计负债：</el-col>
+          <el-col :span="8">应付债券：{{ currentData.payableBonds }}</el-col>
+          <el-col :span="8">长期应付款：{{ currentData.longTermPayables }}</el-col>
+          <el-col :span="8">预计负债：{{ currentData.provisions }}</el-col>
         </el-row>
          <el-row>
-          <el-col :span="8">其他非流动负债：</el-col>
-          <el-col :span="8">负债合计：</el-col>
-          <el-col :span="8">归母所有者权益：</el-col>
+          <el-col :span="8">其他非流动负债：{{ currentData.otherNonCurrentLiabilities }}</el-col>
+          <el-col :span="8">负债合计：{{ currentData.totalLiabilities }}</el-col>
+          <el-col :span="8">归母所有者权益：{{ currentData.equityAttributableToPowner }}</el-col>
         </el-row>
          <el-row>
-          <el-col :span="8">股本：</el-col>
-          <el-col :span="8">现价：</el-col>
-          <el-col :span="8">市场价值：</el-col>
+          <el-col :span="8">股本：{{ currentData.shareCapital }}</el-col>
+          <el-col :span="8">现价：{{ currentData.currentPrice }}</el-col>
+          <el-col :span="8">市场价值：{{ currentData.marketValue }}</el-col>
         </el-row>
         
 
@@ -84,37 +82,73 @@
 </template>
 <script>
  import headTop from '../components/headTop'
+ import { getLaoesList } from '../api/getData';
+ import * as echarts from 'echarts'
+ import { laoeX,updateEchartData,getChartOption,getUpdateOption } from '../config/echartConst';
   export default {
     components: {
     		headTop,
     	},
     mounted() {
-      
+      this.laoeChart = echarts.init(document.getElementById('laoeChart'));
+      this.initChart();
+      this.queryResult();
     },
     data() {
       return {
         queryForm: {
-          code: '',
-          name: '',
-          dateTime:''
+          name: ''
         },
-        resultList:[{name:'潍柴动力',shortTermBorrowing:'1000.00',profitLossLiabilities:'500.00',accountsPayable:'800.00',advanceFromCustomers:'300.00',contractLiability:'250.00',otherPayables:'150.00',oneYearNonCurrentLiabilities:'225.00',otherCurrentLiabilities:'175.00'},],
+        resultList:[],
         dialogVisible: false,
+        currentData:{},
+        laoeChart:null,
       }
     },
      methods: {
+       handleRowDbClick(row, column, event){
+       this.currentData = row;
+       this.updateEchartData(row);
+      },
+       updateEchartData(originList){
+        if(this.laoeChart){
+          let sdata = updateEchartData(originList);
+          let option = getUpdateOption(originList,sdata,laoeX);
+          this.laoeChart.setOption(option);
+        }
+      },
       //点击查询
       queryResult() {
-        console.log('submit!');
+        getLaoesList(this.queryForm).then(response => {
+          if(response.data.code=="0"){
+            this.resultList = response.data.data;
+             if(this.resultList.length>0){
+              this.currentData = this.resultList[0];
+              this.updateEchartData(this.resultList[0]);
+            }
+          }else{
+            this.$message.error('查询负债列表失败:' + response.data.message);
+          }
+          
+        }).catch(error => {
+          this.$message.error('查询负债列表异常:', error);
+        });
       },
       //点击详情
       handleClick(data){
         this.dialogVisible = true;
-
+        this.currentData = data;
+        this.updateEchartData(data);
       },
       handleClose(done) {
         done();
+        this.currentData={};
         console.log('关闭对话框');
+      },
+        //初始化图表
+      initChart(){
+        let option = getChartOption('');
+        this.laoeChart.setOption(option);
       }
     }
   }

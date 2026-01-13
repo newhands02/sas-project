@@ -9,7 +9,7 @@
 					<el-menu-item index="manage"><i class="el-icon-menu"></i>首页</el-menu-item>
 					<el-submenu index="2">
 						<template slot="title"><i class="el-icon-document"></i>数据管理</template>
-						<el-menu-item index="dataManage">添加数据</el-menu-item>
+						<el-menu-item index="dataManage">公司数据管理</el-menu-item>
 					</el-submenu>
 					<el-submenu index="8">
 						<template slot="title"><i class="el-icon-search"></i>数据查询</template>

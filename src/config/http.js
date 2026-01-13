@@ -3,7 +3,7 @@ import axios from 'axios';
 // 创建Axios实例
 const instance = axios.create({
   baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000/api',
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
   }

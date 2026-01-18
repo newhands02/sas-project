@@ -22,8 +22,7 @@
 
 <script>
 	import headTop from '../components/headTop'
-	import tendency from '../components/tendency' 
-	import dtime from 'time-formater'
+	import tendency from '../components/tendency'
     export default {
     	data(){
     		return {

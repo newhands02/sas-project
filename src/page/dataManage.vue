@@ -41,7 +41,10 @@
                             <el-dropdown-item command="profit">利润数据</el-dropdown-item>
                           </el-dropdown-menu>
                         </el-dropdown>
-                        <el-button type="text" style="color:red">删除</el-button>
+                        <el-popconfirm title="确定删除吗？" @confirm="deleteCompany(scope.row)">
+                          <el-button slot="reference" type="text" style="color:red">删除</el-button>
+                        </el-popconfirm>
+                        
                       </template>
                  </el-table-column>
         </el-table>
@@ -76,7 +79,7 @@
 </template>
 <script>
 import headTop from '../components/headTop'
-import { fetchCompanyList,addCompany } from '../api/company';
+import { fetchCompanyList,addCompany,deleteCompany } from '../api/company';
 import { updateAllReports } from '../api/stock';
   export default {
     components: {
@@ -113,11 +116,26 @@ import { updateAllReports } from '../api/stock';
       }
     },
      methods: {
+      //点击删除
+      deleteCompany(row){
+        deleteCompany(row).then(response => {
+          if(response.data.code=="0"){
+            this.$message.success('删除公司成功');
+            this.queryResult();
+          }else{
+            this.$message.error('删除公司失败:' + response.data.message);
+          }
+        }).catch(error => {
+          this.$message.error('删除公司异常:', error);
+        });
+      },
       //点击查询
       queryResult() {
         fetchCompanyList(this.queryForm).then(response => {
           if(response.data.code=="0"){
-            this.resultList = response.data.data;
+            if( response.data.data.length>0 && response.data.data[0]!=null){
+              this.resultList = response.data.data;
+            }
           }else{
             this.$message.error('查询公司列表失败:' + response.data.message);
           }
@@ -128,6 +146,11 @@ import { updateAllReports } from '../api/stock';
       },
       //打开添加公司对话框
       openAddCompanyDialog() {
+         this.companyForm = {
+          name: '',
+          code: '',
+          place: ''
+        };
         this.dialogVisible = true;
       },
       //提交添加公司

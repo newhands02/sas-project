@@ -84,6 +84,7 @@
     mounted() {
       this.profitChart = echarts.init(document.getElementById('profitChart'));
       this.initChart();
+      console.log('利润数据查询页面加载完成');
       this.queryResult();
     },
     data() {
@@ -114,8 +115,8 @@
       queryResult() {
         getProfitsList(this.queryForm).then(response => {
           if(response.data.code=="0"){
-            this.resultList = response.data.data;
-             if(this.resultList.length>0){
+            if( response.data.data.length>0 && response.data.data[0]!=null){
+              this.resultList = response.data.data;
               this.currentData = this.resultList[0];
               this.updateEchartData(this.resultList[0]);
             }

@@ -6,7 +6,8 @@
  * baseImgPath: 图片存放地址
  * 
  */
-let baseUrl = 'http://localhost:8087'; 
+// let baseUrl = 'http://localhost:8087'; 
+let baseUrl = 'https://sas.walleoo.top'; 
 let routerMode = 'hash';
 let baseImgPath;
 

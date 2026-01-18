@@ -130,8 +130,8 @@
       queryResult() {
         getAssetsList(this.queryForm).then(response => {
           if(response.data.code=="0"){
-            this.resultList = response.data.data;
-            if(this.resultList.length>0){
+            if( response.data.data.length>0 && response.data.data[0]!=null){
+              this.resultList = response.data.data;
               this.currentData = this.resultList[0];
               this.updateEchartData(this.resultList[0]);
             }
@@ -141,7 +141,6 @@
           
         }).catch(error => {
           this.$message.error('查询资产列表异常:', error);
-          console.log('查询资产列表异常:', error);
         });
       },
       //点击详情

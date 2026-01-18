@@ -1,17 +1,14 @@
-var path = require('path')
-var utils = require('./utils')
-var webpack = require('webpack')
-var config = require('../config')
-var merge = require('webpack-merge')
-var baseWebpackConfig = require('./webpack.base.conf')
-var CopyWebpackPlugin = require('copy-webpack-plugin')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
-
-var env = process.env.NODE_ENV === 'testing'
-  ? require('../config/test.env')
-  : config.build.env
+import path from 'path'
+import utils from './utils'
+import webpack from 'webpack'
+import config from '../config'
+import merge from 'webpack-merge'
+import baseWebpackConfig from './webpack.base.conf'
+import CopyWebpackPlugin from 'copy-webpack-plugin'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import ExtractTextPlugin from 'extract-text-webpack-plugin'
+import OptimizeCSSPlugin from 'optimize-css-assets-webpack-plugin'
+var env = config.build.env
 
 var webpackConfig = merge(baseWebpackConfig, {
   module: {
@@ -121,4 +118,4 @@ if (config.build.bundleAnalyzerReport) {
   webpackConfig.plugins.push(new BundleAnalyzerPlugin())
 }
 
-module.exports = webpackConfig
+export default webpackConfig

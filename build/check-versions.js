@@ -1,9 +1,10 @@
-var chalk = require('chalk')
-var semver = require('semver')
-var packageConfig = require('../package.json')
-var shell = require('shelljs')
+import chalk from 'chalk'
+import semver from 'semver'
+import packageConfig from '../package.json'
+import shell from 'shelljs'
+import { execSync } from 'child_process'; // 直接解构导入需要的方法
 function exec (cmd) {
-  return require('child_process').execSync(cmd).toString().trim()
+  return execSync(cmd).toString().trim()
 }
 
 var versionRequirements = [
@@ -22,7 +23,7 @@ if (shell.which('npm')) {
   })
 }
 
-module.exports = function () {
+export function check () {
   var warnings = []
   for (var i = 0; i < versionRequirements.length; i++) {
     var mod = versionRequirements[i]

@@ -1,9 +1,10 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
-var path = require('path')
-
-module.exports = {
+import path from 'path'
+import prodEnv from './prod.env.js'; 
+import devEnv from './dev.env.js'; 
+export default {
   build: {
-    env: require('./prod.env'),
+    env: prodEnv,
     index: path.resolve(__dirname, '../manage/index.html'),
     assetsRoot: path.resolve(__dirname, '../manage'),
     assetsSubDirectory: 'static',
@@ -15,6 +16,7 @@ module.exports = {
     // npm install --save-dev compression-webpack-plugin
     productionGzip: false,
     productionGzipExtensions: ['js', 'css'],
+    transpileDependencies: ['*'], // 转译所有 node_modules 中的库（解决第三方库语法冲突）
     // Run the build command with an extra argument to
     // View the bundle analyzer report after build finishes:
     // `npm run build --report`
@@ -22,8 +24,8 @@ module.exports = {
     bundleAnalyzerReport: process.env.npm_config_report
   },
   dev: {
-    env: require('./dev.env'),
-    port: 8002,
+    env: devEnv,
+    port: 8082,
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',

@@ -1,15 +1,15 @@
-var path = require('path')
-var config = require('../config')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
+import path from 'path'
+import config from '../config'
+import ExtractTextPlugin from 'extract-text-webpack-plugin'
 
-exports.assetsPath = function (_path) {
+export function assetsPath (_path) {
   var assetsSubDirectory = process.env.NODE_ENV === 'production'
     ? config.build.assetsSubDirectory
     : config.dev.assetsSubDirectory
   return path.posix.join(assetsSubDirectory, _path)
 }
 
-exports.cssLoaders = function (options) {
+export function cssLoaders (options) {
   options = options || {}
 
   var cssLoader = {
@@ -57,9 +57,9 @@ exports.cssLoaders = function (options) {
 }
 
 // Generate loaders for standalone style files (outside of .vue)
-exports.styleLoaders = function (options) {
+export function styleLoaders (options) {
   var output = []
-  var loaders = exports.cssLoaders(options)
+  var loaders = cssLoaders(options)
   for (var extension in loaders) {
     var loader = loaders[extension]
     output.push({
